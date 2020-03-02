@@ -4,6 +4,7 @@ import art.Bridge;
 import art.DataContent;
 import art.UPort;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
@@ -151,13 +152,14 @@ public class KafkaMsgService implements MsgService {
 
     private static Properties createProperties() {
         final Properties properties = new Properties();
-        properties.put("bootstrap.servers", "localhost:9092");
-        properties.put("group.id", "inspector-consumer-group-1");
-        properties.put("enable.auto.commit", "true");
-        properties.put("auto.commit.interval.ms", "1000");
-        properties.put("session.timeout.ms", "10000");
+//        properties.put("bootstrap.servers", "localhost:9092");
+//        properties.put("group.id", "inspector-consumer-group-1");
+//        properties.put("enable.auto.commit", "true");
+//        properties.put("auto.commit.interval.ms", "1000");
+//        properties.put("session.timeout.ms", "10000");
         properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return properties;
     }
 }
