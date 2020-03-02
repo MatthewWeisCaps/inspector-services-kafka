@@ -74,7 +74,8 @@ public class KafkaMsgService implements MsgService {
 //                    return c;
 //                })
                 .receive()
-                .filter(r -> r.timestampType() == TimestampType.CREATE_TIME)
+//                .filter(r -> r.timestampType() == TimestampType.CREATE_TIME) // todo reenable filter
+                .filter(r -> r.key() != null)
                 .groupBy(ConsumerRecord::key);
 //                .flatMap(gf -> gf.map(r -> r.))
 //                .map(Flux::from);
