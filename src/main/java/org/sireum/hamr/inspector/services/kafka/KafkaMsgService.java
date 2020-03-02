@@ -4,7 +4,6 @@ import art.Bridge;
 import art.DataContent;
 import art.UPort;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
@@ -14,8 +13,6 @@ import org.sireum.hamr.inspector.common.InspectionBlueprint;
 import org.sireum.hamr.inspector.common.Msg;
 import org.sireum.hamr.inspector.services.MsgService;
 import org.sireum.hamr.inspector.services.Session;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.GroupedFlux;
@@ -23,7 +20,6 @@ import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.receiver.ReceiverRecord;
-import reactor.kafka.receiver.internals.ConsumerFactory;
 import reactor.util.function.Tuple3;
 
 import java.time.Duration;
@@ -42,19 +38,16 @@ public class KafkaMsgService implements MsgService {
     private final InspectionBlueprint inspectionBlueprint;
     private final ArtUtils artUtils;
 
-    private final ProducerFactory<String, String> producerFactory; // yes
-    private final ConsumerFactory consumerFactory; // yes (NOT WITH THIS IMPORT)
+//    private final ConsumerFactory consumerFactory; // yes (NOT WITH THIS IMPORT)
+//    private final ConsumerFactory<String, String> consumerFactory; // yes (NOT WITH THIS IMPORT)
 
-    final KafkaTemplate<String, String> kafkaTemplate; // yes
+//    final KafkaTemplate<String, String> kafkaTemplate; // yes
 
 //    final KafkaClient kafkaClient;
 
-    public KafkaMsgService(InspectionBlueprint inspectionBlueprint, ArtUtils artUtils, ProducerFactory<String, String> producerFactory, ConsumerFactory consumerFactory, KafkaTemplate<String, String> kafkaTemplate) {
+    public KafkaMsgService(InspectionBlueprint inspectionBlueprint, ArtUtils artUtils) {
         this.inspectionBlueprint = inspectionBlueprint;
         this.artUtils = artUtils;
-        this.producerFactory = producerFactory;
-        this.consumerFactory = consumerFactory;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -62,7 +55,7 @@ public class KafkaMsgService implements MsgService {
 //        ReceiverOptions.create
 //        KafkaReceiver.create()
 
-        final String topic = "group-1";
+        final String topic = "topic-1";
 //        final Consumer<String, String> consumer = consumerFactory.createConsumer(topic, "inspector-client-1");
 
         final var p1 = new TopicPartition(topic, 0);
@@ -74,7 +67,7 @@ public class KafkaMsgService implements MsgService {
                 .assignment(List.of(p1, p2, p3))
                 .subscription(List.of(topic));
 
-        Flux<GroupedFlux<String, ReceiverRecord<String, String>>> x = KafkaReceiver.create(consumerFactory, receiverOptions)
+        Flux<GroupedFlux<String, ReceiverRecord<String, String>>> x = KafkaReceiver.create(receiverOptions)
 //                .doOnConsumer(c -> {
 //                    c.seekToEnd(List.of(p1, p2, p3));
 //                    return c;
