@@ -82,6 +82,7 @@ public class KafkaMsgService implements MsgService {
 //                .filter(r -> r.timestampType() == TimestampType.CREATE_TIME) // todo reenable filter
                 .publishOn(Schedulers.elastic())
                 .doOnNext(r -> r.receiverOffset().commit())
+                .log()
                 .filter(r -> r.key() != null)
                 .groupBy(ConsumerRecord::key);
 //                .flatMap(gf -> gf.map(r -> r.))
