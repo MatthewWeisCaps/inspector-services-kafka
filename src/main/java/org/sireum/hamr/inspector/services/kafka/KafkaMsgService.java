@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.GroupedFlux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.receiver.ReceiverRecord;
@@ -46,6 +47,10 @@ public class KafkaMsgService implements MsgService {
 
 //    final KafkaClient kafkaClient;
 
+    // see:
+    // https://github.com/reactor/reactor-kafka/blob/master/reactor-kafka-samples/src/main/java/reactor/kafka/samples/SampleScenarios.java
+    //
+
     public KafkaMsgService(InspectionBlueprint inspectionBlueprint, ArtUtils artUtils) {
         this.inspectionBlueprint = inspectionBlueprint;
         this.artUtils = artUtils;
@@ -68,13 +73,15 @@ public class KafkaMsgService implements MsgService {
                 .assignment(List.of(p1, p2, p3))
                 .subscription(List.of(topic));
 
-        Flux<GroupedFlux<String, ReceiverRecord<String, String>>> x = KafkaReceiver.create(receiverOptions)
+        Flux<GroupedFlux<String, ReceiverRecord<String, String>>> x = KafkaReceiver.create(receiverOptions.commitInterval(Duration.ZERO))
 //                .doOnConsumer(c -> {
 //                    c.seekToEnd(List.of(p1, p2, p3));
 //                    return c;
 //                })
                 .receive()
 //                .filter(r -> r.timestampType() == TimestampType.CREATE_TIME) // todo reenable filter
+                .publishOn(Schedulers.elastic())
+                .doOnNext(r -> r.receiverOffset().commit())
                 .filter(r -> r.key() != null)
                 .groupBy(ConsumerRecord::key);
 //                .flatMap(gf -> gf.map(r -> r.))
